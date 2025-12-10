@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
+<<<<<<< HEAD
   <name>self_localization</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
@@ -19,6 +20,20 @@
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
 
+=======
+  <name>aruco_multi_localization</name>
+  <version>0.0.0</version>
+  <description>BSD-3-Clause</description>
+  <maintainer email="sumit.mor@hof-university.de">sumit</maintainer>
+  <license>TODO: License declaration</license>
+
+ <!-- Runtime dependencies -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>opencv</exec_depend>
+>>>>>>> ef5075f81dde4c8a22c1986613210ef31dad6eb6
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
