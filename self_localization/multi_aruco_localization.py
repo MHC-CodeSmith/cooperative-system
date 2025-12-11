@@ -23,9 +23,11 @@ class MultiArucoLocalization(Node):
         self.declare_parameter("aruco_map_file", "config/aruco_map.yaml")
         self.declare_parameter("marker_size", 0.04)
         self.declare_parameter("map_angles_degrees", False)
+        self.declare_parameter("debug_logging", False)
         map_file = self.get_parameter("aruco_map_file").get_parameter_value().string_value
         marker_size_default = self.get_parameter("marker_size").get_parameter_value().double_value
         angles_in_degrees = self.get_parameter("map_angles_degrees").get_parameter_value().bool_value
+        self.debug_logging = self.get_parameter("debug_logging").get_parameter_value().bool_value
         self.world_frame, self.marker_size, self.marker_transforms = self.load_marker_map(
             map_file, marker_size_default, angles_in_degrees
         )
@@ -112,16 +114,22 @@ class MultiArucoLocalization(Node):
         corners, ids = self.detect_aruco_pattern(frame)
         if ids is None:
             return
+        if self.debug_logging:
+            self.get_logger().info(f"Detected IDs: {ids.flatten().tolist()}")
 
         valid_transforms = []
         for idx, marker_id in enumerate(ids.flatten()):
             marker_id = int(marker_id)
             if marker_id not in self.marker_transforms:
+                if self.debug_logging:
+                    self.get_logger().warn(f"Marker {marker_id} not in map, skipping.")
                 continue
 
             image_points = corners[idx][0].reshape(-1, 2)
             success, rvec, tvec = self.solve_pnp(image_points)
             if not success:
+                if self.debug_logging:
+                    self.get_logger().warn(f"solvePnP failed for marker {marker_id}")
                 continue
 
             t_cam_marker = self.to_homogeneous(rvec, tvec)
@@ -134,6 +142,9 @@ class MultiArucoLocalization(Node):
             return
 
         marker_id, t_world_cam, image_points, rvec, tvec = valid_transforms[0]
+        if self.debug_logging:
+            pos = t_world_cam[0:3, 3]
+            self.get_logger().info(f"Using marker {marker_id}, world->cam pos: {pos}")
         self.publish_frame_on_image(frame, image_points, rvec, tvec)
         self.publish_world_pose(t_world_cam, msg.header.stamp)
 
